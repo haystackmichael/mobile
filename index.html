@@ -1,729 +1,552 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8">
-    <title>Cybersecurity Cognitive Abilities Mind Map - Model Player (Interactive Weights Sidebar)</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <style>
-        /* Basic resets and full-screen container */
-        html, body {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            font-family: Arial, sans-serif;
-            background-color: #f7f7f7;
-        }
-        /* Container that holds everything */
-        #mindmap-container {
-            position: relative;
-            width: 100%;
-            height: 100%;
-        }
-        /* The main canvas that we "move" around to simulate a camera */
-        #canvas {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            transition: transform 0.8s ease; /* Smooth camera movement */
-        }
-        /* Each node (ability, construct, or hub) */
-        .node {
-            position: absolute;
-            border-radius: 50%;
-            color: #fff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding: 10px;
-            user-select: none;
-            box-shadow: 0 0 8px rgba(0,0,0,0.2);
-            opacity: 0; /* Start hidden for fade-in effect */
-            transition: opacity 1.5s ease, left 0.8s ease, top 0.8s ease, width 0.8s ease, height 0.8s ease;
-        }
-
-            .node.visible {
-                opacity: 1;
-            }
-        /* Colors and default sizes */
-        .ability {
-            background-color: #2196F3;
-            cursor: pointer;
-            width: 150px;
-            height: 150px;
-        }
-
-        .construct {
-            background-color: #4CAF50;
-            cursor: pointer;
-            width: 150px;
-            height: 150px;
-        }
-
-        .hub {
-            background-color: #555;
-            cursor: default;
-            width: 150px;
-            height: 150px;
-        }
-
-        .node:hover {
-            opacity: 0.9;
-        }
-        /* Tooltip styling */
-        #tooltip {
-            position: absolute;
-            max-width: 300px;
-            padding: 8px 12px;
-            background: rgba(0,0,0,0.8);
-            color: #fff;
-            border-radius: 4px;
-            font-size: 13px;
-            line-height: 1.4;
-            pointer-events: none;
-            display: none;
-            z-index: 9999;
-        }
-        /* SVG for connecting lines */
-        #connection-lines {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-        }
-
-        line {
-            stroke: #666;
-            stroke-width: 2;
-            transition: stroke 0.3s;
-        }
-        /* Reset button */
-        #resetButton {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            padding: 10px 20px;
-            font-size: 16px;
-            background-color: #333;
-            color: #fff;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            z-index: 1000;
-        }
-        /* Weight Panel as a left sidebar */
-        #weight-panel {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 250px;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.95);
-            border-right: 1px solid #ccc;
-            padding: 10px;
-            box-sizing: border-box;
-            overflow-y: auto;
-            z-index: 1001;
-        }
-
-            #weight-panel h4 {
-                margin: 0 0 10px 0;
-                font-size: 16px;
-            }
-
-        .weight-item {
-            display: flex;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-
-            .weight-item label {
-                flex: 1;
-                font-size: 14px;
-            }
-
-            .weight-item input[type="range"] {
-                flex: 2;
-            }
-
-            .weight-item span {
-                width: 50px;
-                text-align: right;
-                font-size: 14px;
-                margin-left: 10px;
-            }
-    </style>
+  <meta charset="UTF-8">
+  <title>Haystack Chronicles - Player Report</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    /* Basic resets and full-screen container */
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: Arial, sans-serif;
+      background-color: #f7f7f7;
+    }
+    /* Container for the entire mindmap */
+    #mindmap-container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      touch-action: none; /* Disable default gestures so we can handle them */
+    }
+    /* Canvas for nodes */
+    #canvas {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      transition: transform 0.1s ease-out;
+    }
+    /* SVG for connecting lines */
+    #connection-lines {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+    /* Node styling */
+    .node {
+      position: absolute;
+      border-radius: 50%;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 10px;
+      user-select: none;
+      box-shadow: 0 0 8px rgba(0,0,0,0.2);
+      opacity: 0;
+      transition: opacity 1.5s ease, left 0.8s ease, top 0.8s ease;
+      width: 150px;
+      height: 150px;
+    }
+    .node.visible {
+      opacity: 1;
+    }
+    /* Colors for different node types */
+    .hub {
+      background-color: #555;
+      cursor: default;
+    }
+    .ability {
+      background-color: #2196F3;
+      cursor: pointer;
+    }
+    .construct {
+      background-color: #4CAF50;
+      cursor: pointer;
+    }
+    .node:hover {
+      opacity: 0.9;
+    }
+    /* Tooltip styling */
+    #tooltip {
+      position: absolute;
+      max-width: 300px;
+      padding: 8px 12px;
+      background: rgba(0,0,0,0.8);
+      color: #fff;
+      border-radius: 4px;
+      font-size: 13px;
+      line-height: 1.4;
+      pointer-events: none;
+      display: none;
+      z-index: 9999;
+    }
+    /* Reset button */
+    #resetButton {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #333;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      z-index: 1000;
+    }
+  </style>
 </head>
 <body>
-    <div id="mindmap-container">
-        <svg id="connection-lines"></svg>
-        <div id="canvas"></div>
-        <div id="tooltip"></div>
-    </div>
-    <button id="resetButton">Reset</button>
-    <div id="weight-panel" style="display:none;"></div>
-    <script>/************************************************************************
-         * DATA
-         * Same content as before, with a new "hub" node for Information Security.
-         ************************************************************************/
-        const nodes = [
-            {
-                id: "information-security",
-                type: "hub",
-                name: "Information Security",
-                definition: `A Cybersecurity Analyst plays a crucial role in identifying, analyzing, and mitigating security threats to protect an organization’s digital assets. This role requires a combination of problem-solving, attention to detail, adaptability, decision-making, and information processing to detect and respond to cyber threats in real time. Analysts monitor networks, investigate security incidents, assess vulnerabilities, and implement defensive measures to prevent breaches.
+  <div id="mindmap-container">
+    <svg id="connection-lines"></svg>
+    <div id="canvas"></div>
+    <div id="tooltip"></div>
+  </div>
+  <button id="resetButton">Reset</button>
 
-Given the ever-evolving nature of cyber threats, the role demands constant learning, quick adaptability, and strategic thinking to stay ahead of attackers. Cybersecurity Analysts must balance rapid threat detection with thoughtful risk assessment, ensuring that security solutions are both effective and sustainable. This entry-level position serves as a critical first line of defense, making real-time security decisions and providing recommendations to enhance organizational resilience against cyber threats.`,
-                connections: []
-            },
-            /* ABILITIES */
-            {
-                id: "problem-solving",
-                type: "ability",
-                name: "Problem-Solving & Analytical Thinking",
-                definition: `The ability to break down complex issues, identify patterns, and develop logical solutions is fundamental in cybersecurity. Analysts must think critically and strategically to understand threats, anticipate vulnerabilities, and devise effective countermeasures.`,
-                connections: [
-                    "deductive-reasoning",
-                    "inductive-reasoning",
-                    "solution-generation",
-                    "evaluation",
-                    "judgment",
-                    "problem-identification"
-                ]
-            },
-            {
-                id: "attention",
-                type: "ability",
-                name: "Attention & Threat Detection",
-                definition: `Cybersecurity professionals must maintain sharp focus, quickly identifying threats while filtering out irrelevant noise. A keen attention to detail enables analysts to recognize security risks before they escalate.`,
-                connections: [
-                    "selective-attention",
-                    "pattern-recognition",
-                    "stimulus-detection",
-                    "filtering-distractions",
-                    "inhibitory-control",
-                    "inductive-reasoning",
-                    "task-shifting"
-                ]
-            },
-            {
-                id: "adaptability",
-                type: "ability",
-                name: "Adaptability & Cognitive Flexibility",
-                definition: `Cyber threats evolve rapidly, demanding security analysts to shift strategies, update defenses, and modify approaches in response to new attack methods.`,
-                connections: [
-                    "mental-flexibility",
-                    "strategy-shifting",
-                    "behavioral-adaptation",
-                    "problem-identification",
-                    "task-shifting",
-                    "filtering-distractions",
-                    "solution-generation"
-                ]
-            },
-            {
-                id: "decision-making",
-                type: "ability",
-                name: "Decision-Making & Risk Assessment",
-                definition: `Cybersecurity professionals must make high-stakes decisions balancing security risks, system integrity, and operational efficiency.`,
-                connections: [
-                    "consequence-evaluation",
-                    "judgment",
-                    "inference",
-                    "evaluation",
-                    "real-time-regulation",
-                    "stimulus-detection",
-                    "inhibitory-control",
-                    "strategy-shifting",
-                    "behavioral-adaptation"
-                ]
-            },
-            {
-                id: "memory",
-                type: "ability",
-                name: "Information Processing & Memory",
-                definition: `Cybersecurity professionals must absorb, retain, and recall vast amounts of technical information to respond quickly and accurately to security threats.`,
-                connections: [
-                    "encoding",
-                    "retrieval",
-                    "knowledge-accumulation",
-                    "integration",
-                    "storage"
-                ]
-            },
-            /* CONSTRUCTS */
-            {
-                id: "deductive-reasoning",
-                type: "construct",
-                name: "Deductive reasoning",
-                definition: `The ability to apply general principles to specific cases to reach logical conclusions. In cybersecurity, professionals use deductive reasoning to apply security frameworks and known threat patterns to new attacks.`,
-                connections: ["problem-solving"]
-            },
-            {
-                id: "inductive-reasoning",
-                type: "construct",
-                name: "Inductive reasoning",
-                definition: `The ability to identify patterns and infer general principles from specific observations. Cybersecurity analysts rely on inductive reasoning to recognize emerging threats based on anomalies in system logs or historical breach patterns.`,
-                connections: ["problem-solving", "attention"]
-            },
-            {
-                id: "solution-generation",
-                type: "construct",
-                name: "Solution generation",
-                definition: `The ability to develop effective and innovative responses to challenges. Problem-solving in cybersecurity requires new defense strategies against evolving attack vectors.`,
-                connections: ["problem-solving", "adaptability"]
-            },
-            {
-                id: "evaluation",
-                type: "construct",
-                name: "Evaluation",
-                definition: `The ability to assess the effectiveness, reliability, and efficiency of different approaches. Security teams compare methods (e.g., encryption or firewalls) to optimize defenses.`,
-                connections: ["problem-solving", "decision-making"]
-            },
-            {
-                id: "judgment",
-                type: "construct",
-                name: "Judgment",
-                definition: `The ability to make sound decisions based on available evidence and risk assessment. Cybersecurity professionals must quickly judge whether an alert signals a real threat or a false positive.`,
-                connections: ["problem-solving", "decision-making"]
-            },
-            {
-                id: "problem-identification",
-                type: "construct",
-                name: "Problem identification",
-                definition: `The ability to recognize and define issues before they escalate. Spotting vulnerabilities or weak access controls early can prevent security breaches.`,
-                connections: ["problem-solving", "adaptability"]
-            },
-            {
-                id: "selective-attention",
-                type: "construct",
-                name: "Selective attention",
-                definition: `The ability to focus on relevant stimuli while ignoring distractions. Cyber analysts must filter real threats from overwhelming system data.`,
-                connections: ["attention"]
-            },
-            {
-                id: "pattern-recognition",
-                type: "construct",
-                name: "Pattern recognition",
-                definition: `The ability to identify recurring structures or trends within data. Recognizing repeated failed access attempts can help detect brute-force attacks.`,
-                connections: ["attention"]
-            },
-            {
-                id: "stimulus-detection",
-                type: "construct",
-                name: "Stimulus detection",
-                definition: `The ability to quickly notice changes or anomalies in an environment. Detecting subtle shifts in network traffic can uncover data exfiltration attempts.`,
-                connections: ["attention", "decision-making"]
-            },
-            {
-                id: "filtering-distractions",
-                type: "construct",
-                name: "Filtering distractions",
-                definition: `The ability to maintain focus despite irrelevant or competing information. With constant alerts, professionals must prioritize genuine threats over false positives.`,
-                connections: ["attention", "adaptability"]
-            },
-            {
-                id: "inhibitory-control",
-                type: "construct",
-                name: "Inhibitory control",
-                definition: `The ability to suppress impulsive reactions or incorrect assumptions. Security analysts must avoid reacting prematurely to an alert without full context.`,
-                connections: ["attention", "decision-making"]
-            },
-            {
-                id: "task-shifting",
-                type: "construct",
-                name: "Task-shifting",
-                definition: `The ability to efficiently transition between multiple ongoing tasks. Security professionals often juggle incident response, monitoring, and compliance checks.`,
-                connections: ["attention", "adaptability"]
-            },
-            {
-                id: "mental-flexibility",
-                type: "construct",
-                name: "Mental flexibility",
-                definition: `The ability to shift between different ways of thinking or problem-solving approaches. Cybersecurity requires switching between technical troubleshooting and crisis response as needed.`,
-                connections: ["adaptability"]
-            },
-            {
-                id: "strategy-shifting",
-                type: "construct",
-                name: "Strategy shifting",
-                definition: `The ability to adjust plans and approaches when circumstances change. If attackers bypass traditional defenses, teams must pivot to advanced detection techniques.`,
-                connections: ["adaptability", "decision-making"]
-            },
-            {
-                id: "behavioral-adaptation",
-                type: "construct",
-                name: "Behavioral adaptation",
-                definition: `The ability to modify one’s actions based on new information. Security teams must continually adjust policies to align with evolving threats and compliance requirements.`,
-                connections: ["adaptability", "decision-making"]
-            },
-            {
-                id: "consequence-evaluation",
-                type: "construct",
-                name: "Consequence evaluation",
-                definition: `The ability to foresee possible outcomes before taking action. Security professionals must weigh the impact of blocking traffic against the risk of an undetected attack.`,
-                connections: ["decision-making"]
-            },
-            {
-                id: "inference",
-                type: "construct",
-                name: "Inference",
-                definition: `The ability to draw conclusions from incomplete or indirect information. Analysts must infer an undetected attacker’s presence from subtle system anomalies.`,
-                connections: ["decision-making"]
-            },
-            {
-                id: "real-time-regulation",
-                type: "construct",
-                name: "Real-time regulation",
-                definition: `The ability to make quick, high-stakes decisions under pressure. During an active breach, analysts must decide immediate containment strategies.`,
-                connections: ["decision-making"]
-            },
-            {
-                id: "encoding",
-                type: "construct",
-                name: "Encoding",
-                definition: `The ability to store new information in memory for future retrieval. Security professionals must remember encryption standards and attack vectors.`,
-                connections: ["memory"]
-            },
-            {
-                id: "retrieval",
-                type: "construct",
-                name: "Retrieval",
-                definition: `The ability to recall stored information when needed. During an incident, analysts must quickly remember command-line procedures.`,
-                connections: ["memory"]
-            },
-            {
-                id: "knowledge-accumulation",
-                type: "construct",
-                name: "Knowledge accumulation",
-                definition: `The ability to build expertise over time through continuous learning. Cybersecurity professionals expand their knowledge of new vulnerabilities and techniques.`,
-                connections: ["memory"]
-            },
-            {
-                id: "integration",
-                type: "construct",
-                name: "Integration",
-                definition: `The ability to connect and synthesize information from multiple sources. Linking logs from various tools creates a comprehensive security picture.`,
-                connections: ["memory"]
-            },
-            {
-                id: "storage",
-                type: "construct",
-                name: "Storage",
-                definition: `The ability to maintain long-term knowledge of technical concepts and frameworks. Understanding protocols and regulations is essential for effective operations.`,
-                connections: ["memory"]
-            }
-        ];
+  <script>
+    /************************************************************************
+     * DATA STRUCTURE
+     * Define nodes for the Player Report: central player, cognitive abilities,
+     * and latent constructs.
+     ************************************************************************/
+    const nodes = [
+      // Central Player Node
+      {
+        id: "player",
+        type: "hub",
+        name: "Player Report",
+        definition: "Comprehensive Cognitive Insights based on your gameplay performance in Haystack Chronicles.",
+        connections: ["critical-thinking", "memory", "attention", "problem-solving"]
+      },
+      // Cognitive Abilities
+      {
+        id: "critical-thinking",
+        type: "ability",
+        name: "Critical Thinking",
+        definition: "Analyzing, synthesizing, and evaluating information to make reasoned decisions.",
+        connections: ["deductive-reasoning", "evaluation-ct", "pattern-recognition", "strategy-implementation", "analogical-reasoning"]
+      },
+      {
+        id: "memory",
+        type: "ability",
+        name: "Memory",
+        definition: "Encoding, storing, and retrieving information for learning and adapting.",
+        connections: ["encoding", "storage", "retrieval", "temporary-storage", "knowledge-accumulation"]
+      },
+      {
+        id: "attention",
+        type: "ability",
+        name: "Attention",
+        definition: "Focusing on relevant stimuli while filtering out distractions.",
+        connections: ["selective-attention", "sustained-attention", "filtering-distractions", "stimulus-identification", "inhibitory-control"]
+      },
+      {
+        id: "problem-solving",
+        type: "ability",
+        name: "Problem-Solving",
+        definition: "Identifying challenges and devising solutions to overcome obstacles.",
+        connections: ["problem-identification", "solution-generation", "evaluation-ps", "strategy-implementation-ps", "behavioral-adaptation"]
+      },
+      // Latent Constructs for Critical Thinking
+      {
+        id: "deductive-reasoning",
+        type: "construct",
+        name: "Deductive Reasoning",
+        definition: "Applying general principles to specific cases to reach logical conclusions."
+      },
+      {
+        id: "evaluation-ct",
+        type: "construct",
+        name: "Evaluation",
+        definition: "Assessing strategies and outcomes to refine future decisions."
+      },
+      {
+        id: "pattern-recognition",
+        type: "construct",
+        name: "Pattern Recognition",
+        definition: "Identifying recurring trends or structures in information."
+      },
+      {
+        id: "strategy-implementation",
+        type: "construct",
+        name: "Strategy Implementation",
+        definition: "Executing plans effectively and adapting them as needed."
+      },
+      {
+        id: "analogical-reasoning",
+        type: "construct",
+        name: "Analogical Reasoning",
+        definition: "Applying lessons learned in one context to related situations."
+      },
+      // Latent Constructs for Memory
+      {
+        id: "encoding",
+        type: "construct",
+        name: "Encoding",
+        definition: "Translating sensory input into storable information."
+      },
+      {
+        id: "storage",
+        type: "construct",
+        name: "Storage",
+        definition: "Maintaining information over time for later retrieval."
+      },
+      {
+        id: "retrieval",
+        type: "construct",
+        name: "Retrieval",
+        definition: "Accessing stored information when needed."
+      },
+      {
+        id: "temporary-storage",
+        type: "construct",
+        name: "Temporary Storage",
+        definition: "Holding information briefly to enable immediate problem-solving."
+      },
+      {
+        id: "knowledge-accumulation",
+        type: "construct",
+        name: "Knowledge Accumulation",
+        definition: "Building a repository of information through continuous learning."
+      },
+      // Latent Constructs for Attention
+      {
+        id: "selective-attention",
+        type: "construct",
+        name: "Selective Attention",
+        definition: "Prioritizing specific stimuli while ignoring others."
+      },
+      {
+        id: "sustained-attention",
+        type: "construct",
+        name: "Sustained Attention",
+        definition: "Maintaining focus over extended periods."
+      },
+      {
+        id: "filtering-distractions",
+        type: "construct",
+        name: "Filtering Distractions",
+        definition: "Filtering out irrelevant stimuli to maintain focus."
+      },
+      {
+        id: "stimulus-identification",
+        type: "construct",
+        name: "Stimulus Identification",
+        definition: "Recognizing key stimuli quickly for timely responses."
+      },
+      {
+        id: "inhibitory-control",
+        type: "construct",
+        name: "Inhibitory Control",
+        definition: "Suppressing impulsive responses to maintain performance."
+      },
+      // Latent Constructs for Problem-Solving
+      {
+        id: "problem-identification",
+        type: "construct",
+        name: "Problem Identification",
+        definition: "Recognizing the core issues that need solving."
+      },
+      {
+        id: "solution-generation",
+        type: "construct",
+        name: "Solution Generation",
+        definition: "Developing creative and effective solutions to challenges."
+      },
+      {
+        id: "evaluation-ps",
+        type: "construct",
+        name: "Evaluation",
+        definition: "Assessing the effectiveness of different solutions."
+      },
+      {
+        id: "strategy-implementation-ps",
+        type: "construct",
+        name: "Strategy Implementation",
+        definition: "Executing plans effectively to overcome obstacles."
+      },
+      {
+        id: "behavioral-adaptation",
+        type: "construct",
+        name: "Behavioral Adaptation",
+        definition: "Adjusting behavior dynamically in response to changing conditions."
+      }
+    ];
 
-        /************************************************************************
-         * GLOBALS & DOM REFS
-         ************************************************************************/
-        const canvas = document.getElementById('canvas');
-        const tooltip = document.getElementById('tooltip');
-        const svg = document.getElementById('connection-lines');
-        const resetButton = document.getElementById('resetButton');
-        const weightPanel = document.getElementById('weight-panel');
+    /************************************************************************
+     * GLOBAL VARIABLES & DOM REFERENCES
+     ************************************************************************/
+    const canvas = document.getElementById('canvas');
+    const svg = document.getElementById('connection-lines');
+    const tooltip = document.getElementById('tooltip');
+    const resetButton = document.getElementById('resetButton');
+    const container = document.getElementById('mindmap-container');
 
-        /**
-         * Global object to store weights for latent constructs for each cognitive ability.
-         * Structure: { [abilityId]: { [constructId]: weightValue } }
-         */
-        let abilityWeights = {};
+    // Variables for pan and zoom
+    let offsetX = 0, offsetY = 0, scale = 1;
+    let startX = 0, startY = 0, initialOffsetX = 0, initialOffsetY = 0;
+    let initialDistance = 0, initialScale = 1;
 
-        /** Store references to created DOM elements for each node. */
-        const domNodes = new Map();
+    /** Map to store created DOM nodes */
+    const domNodes = new Map();
 
-        /** The node currently "in focus" (center). Null means we're in the initial state. */
-        let centerNodeId = null;
+    /** The currently focused node ID */
+    let centerNodeId = null;
 
-        /************************************************************************
-         * INITIAL RENDER: SHOW HUB + ABILITIES
-         ************************************************************************/
-        function renderInitialAbilities() {
-            canvas.innerHTML = '';
-            svg.innerHTML = '';
-            weightPanel.style.display = 'none';
-            domNodes.clear();
-            centerNodeId = null;
+    /************************************************************************
+     * INITIAL RENDER: Display the Player node and its Cognitive Abilities
+     ************************************************************************/
+    function renderInitialReport() {
+      canvas.innerHTML = '';
+      svg.innerHTML = '';
+      domNodes.clear();
+      centerNodeId = null;
 
-            const centerX = window.innerWidth / 2;
-            const centerY = window.innerHeight / 2;
-            const hubNode = getNodeById("information-security");
-            const hubEl = createNodeElement(hubNode);
-            hubEl.style.left = (centerX - 75) + 'px';
-            hubEl.style.top = (centerY - 75) + 'px';
+      const centerX = window.innerWidth / 2;
+      const centerY = window.innerHeight / 2;
+      const playerNode = getNodeById("player");
+      const playerEl = createNodeElement(playerNode);
+      playerEl.style.left = (centerX - 75) + 'px';
+      playerEl.style.top = (centerY - 75) + 'px';
 
-            const abilities = nodes.filter(n => n.type === 'ability');
-            const radius = 250;
-            const angleStep = (2 * Math.PI) / abilities.length;
-            abilities.forEach((ability, index) => {
-                const angle = index * angleStep;
-                const x = centerX + radius * Math.cos(angle);
-                const y = centerY + radius * Math.sin(angle);
-                const el = createNodeElement(ability);
-                el.style.left = (x - 75) + 'px';
-                el.style.top = (y - 75) + 'px';
-            });
-        }
+      // Display Cognitive Abilities around the Player
+      const abilities = playerNode.connections.map(id => getNodeById(id));
+      const radius = 250;
+      const angleStep = (2 * Math.PI) / abilities.length;
+      abilities.forEach((ability, index) => {
+        const angle = index * angleStep;
+        const x = centerX + radius * Math.cos(angle);
+        const y = centerY + radius * Math.sin(angle);
+        const abilityEl = createNodeElement(ability);
+        abilityEl.style.left = (x - 75) + 'px';
+        abilityEl.style.top = (y - 75) + 'px';
+      });
+      drawLines(playerEl, abilities.map(n => domNodes.get(n.id)));
+    }
 
-        /************************************************************************
-         * FOCUS A NODE: Center node and reveal its neighbors.
-         * If it's an ability, initialize and display the weight panel.
-         ************************************************************************/
-        function focusNode(nodeId) {
-            centerNodeId = nodeId;
-            canvas.innerHTML = '';
-            svg.innerHTML = '';
-            domNodes.clear();
-            weightPanel.innerHTML = '';
-            weightPanel.style.display = 'none';
+    /************************************************************************
+     * FOCUS A NODE: Center the selected node and reveal its connections.
+     * When a Cognitive Ability is focused, display its Latent Constructs.
+     ************************************************************************/
+    function focusNode(nodeId) {
+      centerNodeId = nodeId;
+      canvas.innerHTML = '';
+      svg.innerHTML = '';
+      domNodes.clear();
 
-            const centerNode = getNodeById(nodeId);
-            const centerEl = createNodeElement(centerNode);
-            centerEl.style.left = (window.innerWidth / 2 - 75) + 'px';
-            centerEl.style.top = (window.innerHeight / 2 - 75) + 'px';
+      const centerNode = getNodeById(nodeId);
+      const centerEl = createNodeElement(centerNode);
+      centerEl.style.left = (window.innerWidth / 2 - 75) + 'px';
+      centerEl.style.top = (window.innerHeight / 2 - 75) + 'px';
 
-            if (centerNode.type === "ability") {
-                const neighborIds = centerNode.connections;
-                const count = neighborIds.length;
-                const defaultWeight = 100 / count;
-                if (!abilityWeights[centerNode.id]) {
-                    abilityWeights[centerNode.id] = {};
-                    neighborIds.forEach(connId => {
-                        abilityWeights[centerNode.id][connId] = defaultWeight;
-                    });
-                }
-                createWeightPanel(centerNode.id, neighborIds);
-                const neighbors = neighborIds.map(getNodeById);
-                const angleStep = (2 * Math.PI) / Math.max(neighbors.length, 1);
-                const radius = 300;
-                neighbors.forEach((neighbor, i) => {
-                    const angle = i * angleStep;
-                    const weightValue = abilityWeights[centerNode.id][neighbor.id];
-                    const scale = weightValue / defaultWeight;
-                    const baseSize = 150;
-                    const newSize = baseSize * scale;
-                    const nx = (window.innerWidth / 2) + radius * Math.cos(angle) - newSize / 2;
-                    const ny = (window.innerHeight / 2) + radius * Math.sin(angle) - newSize / 2;
-                    const neighborEl = createNodeElement(neighbor);
-                    neighborEl.style.width = newSize + 'px';
-                    neighborEl.style.height = newSize + 'px';
-                    neighborEl.style.left = nx + 'px';
-                    neighborEl.style.top = ny + 'px';
-                });
-                drawLines(centerEl, centerNode.connections.map(connId => domNodes.get(connId)));
-            } else {
-                const neighborIds = centerNode.connections;
-                const neighbors = neighborIds.map(getNodeById);
-                const angleStep = (2 * Math.PI) / Math.max(neighbors.length, 1);
-                const radius = 300;
-                neighbors.forEach((neighbor, i) => {
-                    const angle = i * angleStep;
-                    const nx = (window.innerWidth / 2) + radius * Math.cos(angle);
-                    const ny = (window.innerHeight / 2) + radius * Math.sin(angle);
-                    const neighborEl = createNodeElement(neighbor);
-                    neighborEl.style.left = (nx - 75) + 'px';
-                    neighborEl.style.top = (ny - 75) + 'px';
-                });
-                drawLines(centerEl, neighbors.map(n => domNodes.get(n.id)));
-            }
-        }
-
-        /************************************************************************
-         * CREATE WEIGHT PANEL:
-         * For the focused ability, create a slider for each latent construct.
-         ************************************************************************/
-        function createWeightPanel(abilityId, constructIds) {
-            weightPanel.style.display = 'block';
-            weightPanel.innerHTML = `<h4>Adjust Latent Construct Weights</h4>`;
-            constructIds.forEach(constructId => {
-                const weight = abilityWeights[abilityId][constructId];
-                const div = document.createElement('div');
-                div.className = 'weight-item';
-                div.innerHTML = `<label for="${constructId}">${getNodeById(constructId).name}</label>
-                         <input type="range" id="${constructId}" min="0" max="100" step="5" value="${weight}">
-                         <span id="val-${constructId}">${weight.toFixed(0)}%</span>`;
-                weightPanel.appendChild(div);
-                const slider = div.querySelector('input[type="range"]');
-                slider.addEventListener('input', (e) => {
-                    adjustWeights(abilityId, constructId, parseFloat(e.target.value));
-                });
-            });
-        }
-
-        /************************************************************************
-         * ADJUST WEIGHTS:
-         * When one slider changes, re-normalize the others so the total is 100.
-         ************************************************************************/
-        function adjustWeights(abilityId, changedConstructId, newValue) {
-            const weights = abilityWeights[abilityId];
-            const constructIds = Object.keys(weights);
-            weights[changedConstructId] = newValue;
-            const otherIds = constructIds.filter(id => id !== changedConstructId);
-            const otherTotal = otherIds.reduce((sum, id) => sum + weights[id], 0);
-            const remaining = 100 - newValue;
-            if (otherTotal === 0) {
-                otherIds.forEach(id => {
-                    weights[id] = remaining / otherIds.length;
-                });
-            } else {
-                otherIds.forEach(id => {
-                    weights[id] = weights[id] / otherTotal * remaining;
-                });
-            }
-            constructIds.forEach(id => {
-                const slider = document.getElementById(id);
-                const span = document.getElementById("val-" + id);
-                if (slider) slider.value = weights[id];
-                if (span) span.innerText = weights[id].toFixed(0) + "%";
-            });
-            focusNode(abilityId);
-        }
-
-        /************************************************************************
-         * CREATE NODE ELEMENT, ADD EVENT LISTENERS, APPLY FADE-IN
-         *
-         * Updated to include touch events:
-         * - A quick tap displays the tooltip (nested information).
-         * - A long press (600ms) triggers the focus action.
-         ************************************************************************/
-        function createNodeElement(node) {
-            if (domNodes.has(node.id)) {
-                return domNodes.get(node.id);
-            }
-            const el = document.createElement('div');
-            el.classList.add('node');
-            if (node.type === 'ability') {
-                el.classList.add('ability');
-            } else if (node.type === 'construct') {
-                el.classList.add('construct');
-            } else {
-                el.classList.add('hub');
-            }
-            el.dataset.id = node.id;
-            el.innerText = node.name;
-
-            // Desktop mouse events:
-            el.addEventListener('mouseenter', e => {
-                tooltip.style.display = 'block';
-                tooltip.textContent = node.definition;
-            });
-            el.addEventListener('mousemove', e => {
-                tooltip.style.left = (e.pageX + 10) + 'px';
-                tooltip.style.top = (e.pageY + 10) + 'px';
-            });
-            el.addEventListener('mouseleave', e => {
-                tooltip.style.display = 'none';
-            });
-            el.addEventListener('click', e => {
-                e.stopPropagation();
-                if (node.type !== 'hub') {
-                    if (centerNodeId === null || node.id !== centerNodeId) {
-                        focusNode(node.id);
-                    }
-                }
-            });
-
-            // Mobile touch events:
-            let touchTimer = null;
-            const longPressDuration = 600; // milliseconds
-
-            el.addEventListener('touchstart', e => {
-                e.preventDefault(); // Prevent emulated mouse events
-                touchTimer = setTimeout(() => {
-                    // Long press: trigger focus
-                    if (node.type !== 'hub') {
-                        if (centerNodeId === null || node.id !== centerNodeId) {
-                            focusNode(node.id);
-                        }
-                    }
-                    touchTimer = null;
-                }, longPressDuration);
-
-                // Immediately display tooltip on touch
-                tooltip.style.display = 'block';
-                tooltip.textContent = node.definition;
-                if (e.touches && e.touches.length > 0) {
-                    tooltip.style.left = (e.touches[0].pageX + 10) + 'px';
-                    tooltip.style.top = (e.touches[0].pageY + 10) + 'px';
-                }
-            });
-
-            el.addEventListener('touchend', e => {
-                if (touchTimer) {
-                    clearTimeout(touchTimer);
-                    touchTimer = null;
-                }
-                setTimeout(() => { tooltip.style.display = 'none'; }, 500);
-            });
-
-            el.addEventListener('touchcancel', e => {
-                if (touchTimer) {
-                    clearTimeout(touchTimer);
-                    touchTimer = null;
-                }
-                tooltip.style.display = 'none';
-            });
-
-            canvas.appendChild(el);
-            domNodes.set(node.id, el);
-            setTimeout(() => {
-                el.classList.add('visible');
-            }, 50);
-            return el;
-        }
-
-        /************************************************************************
-         * DRAW LINES FROM CENTER TO NEIGHBOR ELEMENTS
-         ************************************************************************/
-        function drawLines(centerElem, neighborElems) {
-            svg.innerHTML = '';
-            const cRect = centerElem.getBoundingClientRect();
-            const cx = cRect.left + cRect.width / 2;
-            const cy = cRect.top + cRect.height / 2;
-            neighborElems.forEach(neEl => {
-                const nRect = neEl.getBoundingClientRect();
-                const nx = nRect.left + nRect.width / 2;
-                const ny = nRect.top + nRect.height / 2;
-                const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-                line.setAttribute("x1", cx);
-                line.setAttribute("y1", cy);
-                line.setAttribute("x2", nx);
-                line.setAttribute("y2", ny);
-                svg.appendChild(line);
-            });
-        }
-
-        /************************************************************************
-         * UTILITY: GET NODE BY ID
-         ************************************************************************/
-        function getNodeById(id) {
-            return nodes.find(n => n.id === id);
-        }
-
-        /************************************************************************
-         * HANDLE WINDOW RESIZE: Re-render state accordingly.
-         ************************************************************************/
-        window.addEventListener('resize', () => {
-            if (centerNodeId === null) {
-                renderInitialAbilities();
-            } else {
-                focusNode(centerNodeId);
-            }
+      if (centerNode.connections && centerNode.connections.length > 0) {
+        const neighbors = centerNode.connections.map(getNodeById);
+        const angleStep = (2 * Math.PI) / Math.max(neighbors.length, 1);
+        const radius = 300;
+        neighbors.forEach((neighbor, i) => {
+          const angle = i * angleStep;
+          const nx = (window.innerWidth / 2) + radius * Math.cos(angle) - 75;
+          const ny = (window.innerHeight / 2) + radius * Math.sin(angle) - 75;
+          const neighborEl = createNodeElement(neighbor);
+          neighborEl.style.left = nx + 'px';
+          neighborEl.style.top = ny + 'px';
         });
+        drawLines(centerEl, neighbors.map(n => domNodes.get(n.id)));
+      }
+    }
 
-        /************************************************************************
-         * INIT: Set initial state and add reset button listener.
-         ************************************************************************/
-        window.addEventListener('DOMContentLoaded', () => {
-            renderInitialAbilities();
-        });
-        resetButton.addEventListener('click', () => {
-            renderInitialAbilities();
-        });</script>
+    /************************************************************************
+     * CREATE NODE ELEMENT, ADD EVENT LISTENERS, AND APPLY FADE-IN
+     * Supports desktop mouse events and mobile touch events:
+     * - Quick tap shows tooltip.
+     * - Long press (600ms) triggers focus.
+     ************************************************************************/
+    function createNodeElement(node) {
+      if (domNodes.has(node.id)) return domNodes.get(node.id);
+      const el = document.createElement('div');
+      el.classList.add('node');
+      if (node.type === 'hub') {
+        el.classList.add('hub');
+      } else if (node.type === 'ability') {
+        el.classList.add('ability');
+      } else if (node.type === 'construct') {
+        el.classList.add('construct');
+      }
+      el.dataset.id = node.id;
+      el.innerText = node.name;
+
+      // Desktop events:
+      el.addEventListener('mouseenter', e => {
+        tooltip.style.display = 'block';
+        tooltip.textContent = node.definition;
+      });
+      el.addEventListener('mousemove', e => {
+        tooltip.style.left = (e.pageX + 10) + 'px';
+        tooltip.style.top = (e.pageY + 10) + 'px';
+      });
+      el.addEventListener('mouseleave', e => {
+        tooltip.style.display = 'none';
+      });
+      el.addEventListener('click', e => {
+        e.stopPropagation();
+        if (node.type !== 'hub' && node.type !== 'construct') {
+          if (centerNodeId === null || node.id !== centerNodeId) {
+            focusNode(node.id);
+          }
+        }
+      });
+
+      // Mobile touch events:
+      let touchTimer = null;
+      const longPressDuration = 600; // ms
+
+      el.addEventListener('touchstart', e => {
+        e.preventDefault();
+        touchTimer = setTimeout(() => {
+          if (node.type !== 'hub' && node.type !== 'construct') {
+            if (centerNodeId === null || node.id !== centerNodeId) {
+              focusNode(node.id);
+            }
+          }
+          touchTimer = null;
+        }, longPressDuration);
+        tooltip.style.display = 'block';
+        tooltip.textContent = node.definition;
+        if (e.touches && e.touches.length > 0) {
+          tooltip.style.left = (e.touches[0].pageX + 10) + 'px';
+          tooltip.style.top = (e.touches[0].pageY + 10) + 'px';
+        }
+      });
+      el.addEventListener('touchend', e => {
+        if (touchTimer) {
+          clearTimeout(touchTimer);
+          touchTimer = null;
+        }
+        setTimeout(() => { tooltip.style.display = 'none'; }, 500);
+      });
+      el.addEventListener('touchcancel', e => {
+        if (touchTimer) {
+          clearTimeout(touchTimer);
+          touchTimer = null;
+        }
+        tooltip.style.display = 'none';
+      });
+
+      canvas.appendChild(el);
+      domNodes.set(node.id, el);
+      setTimeout(() => { el.classList.add('visible'); }, 50);
+      return el;
+    }
+
+    /************************************************************************
+     * DRAW LINES: Connect the center node to its neighbors using SVG lines.
+     ************************************************************************/
+    function drawLines(centerElem, neighborElems) {
+      svg.innerHTML = '';
+      const cRect = centerElem.getBoundingClientRect();
+      const cx = cRect.left + cRect.width / 2;
+      const cy = cRect.top + cRect.height / 2;
+      neighborElems.forEach(neEl => {
+        const nRect = neEl.getBoundingClientRect();
+        const nx = nRect.left + nRect.width / 2;
+        const ny = nRect.top + nRect.height / 2;
+        const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        line.setAttribute("x1", cx);
+        line.setAttribute("y1", cy);
+        line.setAttribute("x2", nx);
+        line.setAttribute("y2", ny);
+        svg.appendChild(line);
+      });
+    }
+
+    /************************************************************************
+     * UTILITY: Get node by ID.
+     ************************************************************************/
+    function getNodeById(id) {
+      return nodes.find(n => n.id === id);
+    }
+
+    /************************************************************************
+     * HANDLE WINDOW RESIZE: Re-render based on current focus.
+     ************************************************************************/
+    window.addEventListener('resize', () => {
+      if (centerNodeId === null) {
+        renderInitialReport();
+      } else {
+        focusNode(centerNodeId);
+      }
+    });
+
+    /************************************************************************
+     * INITIALIZE THE REPORT & RESET BUTTON
+     ************************************************************************/
+    window.addEventListener('DOMContentLoaded', () => {
+      renderInitialReport();
+    });
+    resetButton.addEventListener('click', () => {
+      renderInitialReport();
+      // Reset pan and zoom
+      offsetX = 0; offsetY = 0; scale = 1;
+      updateTransform();
+    });
+
+    /************************************************************************
+     * PAN AND PINCH ZOOM FUNCTIONALITY
+     * These event listeners on the container allow dragging and pinch-to-zoom.
+     ************************************************************************/
+    container.addEventListener('touchstart', function(e) {
+      if(e.touches.length === 1) {
+        startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
+        initialOffsetX = offsetX;
+        initialOffsetY = offsetY;
+      } else if(e.touches.length === 2) {
+        initialDistance = getDistance(e.touches[0], e.touches[1]);
+        initialScale = scale;
+      }
+    }, {passive: false});
+
+    container.addEventListener('touchmove', function(e) {
+      if(e.touches.length === 1) {
+        let currentX = e.touches[0].clientX;
+        let currentY = e.touches[0].clientY;
+        offsetX = initialOffsetX + (currentX - startX);
+        offsetY = initialOffsetY + (currentY - startY);
+        updateTransform();
+      } else if(e.touches.length === 2) {
+        let currentDistance = getDistance(e.touches[0], e.touches[1]);
+        scale = initialScale * (currentDistance / initialDistance);
+        updateTransform();
+      }
+      e.preventDefault();
+    }, {passive: false});
+
+    container.addEventListener('touchend', function(e) {
+      // No additional action needed here
+    });
+    container.addEventListener('touchcancel', function(e) {
+      // No additional action needed here
+    });
+
+    function getDistance(touch1, touch2) {
+      const dx = touch1.clientX - touch2.clientX;
+      const dy = touch1.clientY - touch2.clientY;
+      return Math.sqrt(dx*dx + dy*dy);
+    }
+
+    function updateTransform() {
+      canvas.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
+      svg.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
+    }
+  </script>
 </body>
 </html>
